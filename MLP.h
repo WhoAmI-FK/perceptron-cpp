@@ -23,8 +23,12 @@ namespace neural_network {
 			_weights.resize(inputs + 1);
 			std::generate(_weights.begin(), _weights.end(),frand);
 		}
-		double sigmoid(double x);
-		void set_weights(std::vector<double> w_init);
+		double sigmoid(double x) {
+			return ((std::exp(x)) / (std::exp(x) + 1.0));
+		}
+		void set_weights(std::vector<double> w_init) {
+			_weights.assign(w_init.begin(), w_init.end());
+		}
 		double run(std::vector<double> x) {
 			x.push_back(_bias);
 			double sum = std::inner_product(x.begin(), x.end(), _weights.begin(), (double)0.0);
