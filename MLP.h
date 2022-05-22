@@ -39,8 +39,53 @@ namespace neural_network {
 
 	class MultiLayerPeceptron {
 	public:
-		MultiLayerPeceptron(std::vector<int> layers, double bias = 1.0, double eta = 0.5);
-		void set_weights(std::vector<std::vector<std::vector<double>>> w_init);
+		MultiLayerPeceptron(std::vector<int> layers, double bias = 1.0, double eta = 0.5) {
+			_layers = layers;
+			_bias = bias;
+			_eta = eta;
+			for (std::size_t i = 0; i < layers.size(); i++) {
+				_values.push_back(std::vector<double>(layers[i], 0.0));
+				_network.push_back(std::vector<Peceptron>());
+				if (i > 0) {
+					for (std::size_t j = 0; j < layers[i]; j++)
+					{
+						_network[i].push_back(Peceptron(layers[i-1],bias));
+					}
+				}
+			}
+		}
+		void set_weights(std::vector<std::vector<std::vector<double>>> w_init) {
+			for (std::size_t i = 0; i < w_init.size(); i++) {
+				for (std::size_t j = 0; j < w_init[i].size(); j++) {
+					_network[i+1][j].set_weights(w_init[i][j]);
+				}
+			}
+		}
+		void print_weights()
+		{
+			std::cout << std::endl;
+			for (std::size_t i = 1; i < _network.size(); i++)
+			{
+				for (std::size_t j = 0; j < _layers[i]; j++) {
+					std::cout << "Layer " << i + 1 << " Neuron " << j << ": ";
+					for (auto& it : _network[i][j]._weights)
+					{
+						std::cout << it << " ";
+					}
+					std::cout << std::endl;
+				}
+			}
+			std::cout << std::endl;
+		}
+		std::vector<double> run(std::vector<double> x) {
+			_values[0] = x;
+			for (std::size_t i = 1; i < _network.size(); i++) {
+				for (std::size_t j = 0; j < _layers[i]; j++) {
+					_values[i][j] = _network[i][j].run(_values[i - 1]);
+				}
+			}
+			return _values.back();
+		}
 		std::vector<int> _layers;
 		double _bias;
 		double _eta;

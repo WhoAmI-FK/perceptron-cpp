@@ -35,6 +35,19 @@ int main()
 	std::cout << p4->run({ 0,1 }) << std::endl;
 	std::cout << p4->run({ 1,0 }) << std::endl;
 	std::cout << p4->run({ 1,1 }) << std::endl;
+
+	std::cout << "\n\nHardCoded XOR: " << std::endl;
+	neural_network::MultiLayerPeceptron mlp = neural_network::MultiLayerPeceptron({ 2,2,1 });
+	mlp.set_weights({ {{-10,-10,15},{15,15,-10}},{{10,10,-15}} });
+	std::cout << "Weights:\n";
+	mlp.print_weights();
+
+	std::cout << "XOR: " << std::endl;
+	std::cout << "0 0 = " << mlp.run({ 0,0 })[0] << std::endl;
+	std::cout << "0 1 = " << mlp.run({ 0,1 })[0] << std::endl;
+	std::cout << "1 0 = " << mlp.run({ 1,0 })[0] << std::endl;
+	std::cout << "1 1 = " << mlp.run({ 1,1 })[0] << std::endl;
+
 	delete p, p2,p3,p4;
 	return 0;
-}
+} 
