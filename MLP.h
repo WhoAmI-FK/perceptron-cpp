@@ -45,6 +45,7 @@ namespace neural_network {
 			_eta = eta;
 			for (std::size_t i = 0; i < layers.size(); i++) {
 				_values.push_back(std::vector<double>(layers[i], 0.0));
+				d.push_back(std::vector < double>(layers[i], 0.0));
 				_network.push_back(std::vector<Peceptron>());
 				if (i > 0) {
 					for (std::size_t j = 0; j < layers[i]; j++)
@@ -85,6 +86,48 @@ namespace neural_network {
 				}
 			}
 			return _values.back();
+		}
+		double bp(std::vector<double> x, std::vector<double> y)
+		{
+			// Backpropagation Step by Step:
+
+			  // STEP 1: Feed a sample to the network
+			std::vector<double> outputs = run(x);
+
+			// STEP 2: Calculate the MSE
+			std::vector<double> error;
+			double MSE = 0.0;
+			for (int i = 0; i < y.size(); i++) {
+				error.push_back(y[i] - outputs[i]);
+				MSE += error[i] * error[i];
+			}
+			MSE /= _layers.back();
+
+			// STEP 3: Calculate the output error terms
+			for (int i = 0; i < outputs.size(); i++)
+				d.back()[i] = outputs[i] * (1 - outputs[i]) * (error[i]);
+
+			// STEP 4: Calculate the error term of each unit on each layer    
+			for (int i = _network.size() - 2; i > 0; i--)
+				for (int h = 0; h < _network[i].size(); h++) {
+					double fwd_error = 0.0;
+					for (int k = 0; k < _layers[i + 1]; k++)
+						fwd_error += _network[i + 1][k]._weights[h] * d[i + 1][k];
+					d[i][h] = _values[i][h] * (1 - _values[i][h]) * fwd_error;
+				}
+
+			// STEPS 5 & 6: Calculate the deltas and update the weights
+			for (int i = 1; i < _network.size(); i++)
+				for (int j = 0; j < _layers[i]; j++)
+					for (int k = 0; k < _layers[i - 1] + 1; k++) {
+						double delta;
+						if (k == _layers[i - 1])
+							delta = _eta * d[i][j] * _bias;
+						else
+							delta = _eta * d[i][j] * _values[i - 1][k];
+						_network[i][j]._weights[k] += delta;
+					}
+			return MSE;
 		}
 		std::vector<int> _layers;
 		double _bias;
